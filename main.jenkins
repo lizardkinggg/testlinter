@@ -1,0 +1,36 @@
+#!groovy
+// Run docker build
+
+properties([disableConcurrentBuilds()])
+
+pipeline {
+    agent { 
+        label 'master'
+        }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '1', artifactNumToKeepStr: '1'))
+        timestamps()
+    }
+    stages {
+	stage("download requirements") {
+            steps {
+                echo " ============== start add requirements and testing linter =================="
+                        sh """
+			eslint src/currencyservice/*.js
+                        """
+            }
+        }
+	stage("create docker image") {
+            steps {
+                echo " ============== start building image =================="
+                withCredentials([usernamePassword(credentialsId: 'dockerhub_morrison', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh """
+                        docker login -u $USERNAME -p $PASSWORD
+                        docker build -t lizardkinggg/nodejs:1.2 -f src/currencyservice/Dockerfile .
+                        docker push lizardkinggg/nodejs:1.2 
+                        """
+                }
+            }
+        }
+    }
+}
