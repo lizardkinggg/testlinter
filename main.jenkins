@@ -16,7 +16,7 @@ pipeline {
             steps {
                 echo " ============== start add requirements and testing linter =================="
                         sh """
-			eslint --no-eslint src/currencyservice/*.js
+			eslint --no-eslintrc src/currencyservice/*.js
                         """
             }
         }
